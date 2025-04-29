@@ -9,6 +9,8 @@ import SearchSection from './SearchSection';
 import ProfileSection from './ProfileSection';
 import NotificationSection from './NotificationSection';
 import { drawerWidth } from 'config.js';
+import { Button, IconButton, Tooltip } from '@mui/material';
+import httpService from 'services/httpService';
 
 // assets
 import logo from 'assets/images/logo.svg';
@@ -32,6 +34,10 @@ const Header = () => {
       </Box>
       <Box sx={{ flexGrow: 1 }} />
       <SearchSection theme="light" />
+        <Button onClick={handleButtonClick} variant="outlined" sx={{ color: 'white', borderColor: 'white' }}>
+          Make Request
+        </Button>
+      </Box>
       <NotificationSection />
       <ProfileSection />
     </>
