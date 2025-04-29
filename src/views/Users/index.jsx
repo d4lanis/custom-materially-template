@@ -26,6 +26,8 @@ import {
 
 // project imports
 import { gridSpacing } from 'config';
+import { useSideSheet } from 'contexts/SideSheetContext';
+import UserForm from './UserForm';
 
 // icons
 import SearchIcon from '@mui/icons-material/Search';
@@ -33,6 +35,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 // Sample user data
 const sampleUsers = [
@@ -116,6 +119,7 @@ const Users = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
+  const { openSideSheet, closeSideSheet } = useSideSheet();
 
   // Handle page change
   const handleChangePage = (event, newPage) => {
@@ -140,6 +144,24 @@ const Users = () => {
   // Get current page of users
   const currentUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  // Handle opening the Add User side sheet
+  const handleAddUser = () => {
+    openSideSheet({
+      title: 'Add User',
+      content: (
+        <UserForm 
+          onSubmit={(userData) => {
+            // In a real app, you would add the user to your database here
+            console.log('Adding user:', userData);
+            closeSideSheet();
+          }}
+          onCancel={closeSideSheet}
+        />
+      ),
+      width: 500
+    });
+  };
+
   return (
     <Grid container spacing={gridSpacing}>
       <Grid item xs={12}>
@@ -155,7 +177,7 @@ const Users = () => {
             title={
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Typography variant="h4">Users</Typography>
-                <Button variant="contained" color="primary" startIcon={<AddIcon />}>
+                <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddUser}>
                   Add User
                 </Button>
               </Box>

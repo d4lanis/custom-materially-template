@@ -3,7 +3,7 @@ import React from 'react';
 
 // material-ui
 import { useTheme, styled } from '@mui/material/styles';
-import { useMediaQuery, Divider, Drawer, Grid, Box, IconButton, Tooltip } from '@mui/material';
+import { useMediaQuery, Divider, Drawer, Grid, Box } from '@mui/material';
 
 // third party
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -13,13 +13,10 @@ import MenuList from './MenuList';
 import { drawerWidth, miniDrawerWidth } from 'config.js';
 
 // assets
-import logo from 'assets/images/logo.svg';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import MenuIcon from '@mui/icons-material/Menu';
+import logo from 'assets/images/logo-dark.svg';
 
 // redux
-import { useDispatch, useSelector } from 'react-redux';
-import * as actionTypes from 'store/actions';
+import { useSelector } from 'react-redux';
 
 // custom style
 const Nav = styled((props) => <nav {...props} />)(({ theme }) => ({
@@ -38,18 +35,29 @@ const Nav = styled((props) => <nav {...props} />)(({ theme }) => ({
 const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
-  const dispatch = useDispatch();
   const customization = useSelector((state) => state.customization);
   const { sidebarCollapsed } = customization;
-
-  const handleCollapse = () => {
-    dispatch({ type: actionTypes.SIDEBAR_COLLAPSED, sidebarCollapsed: !sidebarCollapsed });
-  };
 
   const currentDrawerWidth = sidebarCollapsed ? miniDrawerWidth : drawerWidth;
 
   const drawer = (
     <>
+      {/* Logo section for all screen sizes */}
+      <Box
+        sx={{
+          display: sidebarCollapsed ? 'none' : 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          p: 1.5,
+          ...theme.mixins.toolbar,
+          background: theme.palette.background.default
+        }}
+      >
+        <img src={logo} alt="Logo" style={{ height: '36px' }} />
+      </Box>
+      <Divider />
+
+      {/* Mobile-only header (keeping for backward compatibility) */}
       <Box sx={{ display: { md: 'none', xs: 'block' } }}>
         <Grid
           container
@@ -64,54 +72,16 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
             background: theme.palette.primary.main,
             boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)'
           }}
-        >
-          <Grid item>
-            <img src={logo} alt="Logo" />
-          </Grid>
-        </Grid>
+        ></Grid>
       </Box>
-      <Divider />
       <PerfectScrollbar
         style={{
           height: 'calc(100vh - 65px)',
           padding: '10px',
-          paddingBottom: sidebarCollapsed ? '70px' : '10px' // Extra padding at bottom when collapsed for the toggle button
+          paddingBottom: '10px'
         }}
       >
         <MenuList collapsed={sidebarCollapsed} />
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            width: sidebarCollapsed ? `${miniDrawerWidth - 20}px` : `${drawerWidth - 20}px`,
-            backgroundColor: theme.palette.background.paper,
-            borderTop: `1px solid ${theme.palette.divider}`,
-            display: 'flex',
-            justifyContent: 'center',
-            padding: '10px 0',
-            transition: theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen
-            })
-          }}
-        >
-          <Tooltip title={sidebarCollapsed ? 'Expand' : 'Collapse'}>
-            <IconButton
-              color="primary"
-              onClick={handleCollapse}
-              size="medium"
-              sx={{
-                backgroundColor: theme.palette.primary.light,
-                color: '#fff',
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.main
-                }
-              }}
-            >
-              {sidebarCollapsed ? <MenuIcon /> : <MenuOpenIcon />}
-            </IconButton>
-          </Tooltip>
-        </Box>
       </PerfectScrollbar>
     </>
   );
