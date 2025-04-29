@@ -20,14 +20,14 @@ const App = () => {
   return (
     <>
       {
-        <NavigationScroll>
+        <SideSheetProvider>
           <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme(customization)}>
               <CssBaseline />
               <Routes />
             </ThemeProvider>
           </StyledEngineProvider>
-        </NavigationScroll>
+        </SideSheetProvider>
       }
     </>
   );

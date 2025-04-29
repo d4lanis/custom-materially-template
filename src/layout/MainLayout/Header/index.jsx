@@ -18,6 +18,20 @@ import logo from 'assets/images/logo.svg';
 // ==============================|| HEADER ||============================== //
 
 const Header = () => {
+  const handleDeleteClick = () => {
+    openDialog({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this item? This action cannot be undone.',
+      confirmText: 'Delete',
+      confirmColor: 'error',
+      onConfirm: () => {
+        // Perform delete operation here
+        setTimeout(() => {
+          addNotification('Item successfully deleted!', NOTIFICATION_TYPES.SUCCESS);
+        }, 500);
+      }
+    });
+  };
 
   return (
     <>
@@ -34,6 +48,9 @@ const Header = () => {
       </Box>
       <Box sx={{ flexGrow: 1 }} />
       <SearchSection theme="light" />
+        <Button variant="outlined" sx={{ color: 'white', borderColor: 'white' }} startIcon={<DeleteIcon />} onClick={handleDeleteClick}>
+          Delete Item
+        </Button>
         <Button onClick={handleButtonClick} variant="outlined" sx={{ color: 'white', borderColor: 'white' }}>
           Make Request
         </Button>
