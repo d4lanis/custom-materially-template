@@ -1,41 +1,21 @@
-import React, { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useState, useMemo } from 'react';
 
 // material-ui
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Divider,
-  Grid,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Avatar,
-  IconButton,
-  TextField,
-  InputAdornment
-} from '@mui/material';
+import { Box, Button, Chip, Typography, Avatar, IconButton, TextField, InputAdornment, Paper } from '@mui/material';
 
-// project imports
-import { gridSpacing } from 'config';
+import SearchIcon from '@mui/icons-material/Search';
+
+import { useTheme } from '@mui/material/styles';
 import { useSideSheet } from 'contexts/SideSheetContext';
 import UserForm from './UserForm';
+import DataGridWrapper from 'component/DataTable/DataGridWrapper';
 
 // icons
-import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
 
 // Sample user data
 const sampleUsers = [
@@ -116,40 +96,28 @@ const sampleUsers = [
 // ==============================|| USERS PAGE ||============================== //
 
 const Users = () => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [searchTerm, setSearchTerm] = useState('');
+  const theme = useTheme();
+  const HEADER_HEIGHT = 136; // or get from theme.mixins.toolbar.minHeight
+  const SAFE_MARGIN = theme.spacing(8); // 64px
+  const paperHeight = `calc(100dvh - ${HEADER_HEIGHT + parseInt(SAFE_MARGIN)}px)`;
   const { openSideSheet, closeSideSheet } = useSideSheet();
+  const [searchText, setSearchText] = useState('');
+  const [rows, setRows] = useState(sampleUsers);
 
-  // Handle page change
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  // Handle search input change
+  const handleSearch = (event) => {
+    const value = event.target.value.toLowerCase();
+    setSearchText(value);
+    const filtered = sampleUsers.filter((user) => Object.values(user).some((field) => String(field).toLowerCase().includes(value)));
+    setRows(filtered);
   };
-
-  // Handle rows per page change
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Filter users based on search term
-  const filteredUsers = sampleUsers.filter((user) => {
-    return (
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
-
-  // Get current page of users
-  const currentUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   // Handle opening the Add User side sheet
   const handleAddUser = () => {
     openSideSheet({
       title: 'Add User',
       content: (
-        <UserForm 
+        <UserForm
           onSubmit={(userData) => {
             // In a real app, you would add the user to your database here
             console.log('Adding user:', userData);
@@ -162,106 +130,131 @@ const Users = () => {
     });
   };
 
+  // Handle row click for viewing user details
+  const handleRowClick = (params) => {
+    console.log('Row clicked:', params.row);
+    // You could implement view user details functionality here
+  };
+
+  // Define columns for the data grid
+  const columns = [
+    {
+      field: 'user',
+      headerName: 'User',
+      flex: 2,
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center">
+          <Avatar src={params.row.avatar} alt={params.row.name} sx={{ mr: 2 }} />
+          <Box>
+            <Typography variant="subtitle1">{params.row.name}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              {params.row.email}
+            </Typography>
+          </Box>
+        </Box>
+      ),
+      sortable: false
+    },
+    { field: 'role', headerName: 'Role', flex: 1 },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      renderCell: (params) => <Chip label={params.row.status} color={params.row.status === 'Active' ? 'success' : 'default'} size="small" />
+    },
+    { field: 'joinDate', headerName: 'Join Date', flex: 1 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      sortable: false,
+      renderCell: () => (
+        <Box display="flex" justifyContent="center">
+          <IconButton color="info" size="small" title="View">
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+          <IconButton color="primary" size="small" title="Edit">
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton color="error" size="small" title="Delete">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      )
+    }
+  ];
+
   return (
-    <Grid container spacing={gridSpacing}>
-      <Grid item xs={12}>
-        <Typography variant="h3">Users Management</Typography>
-        <Typography variant="body2" mt={1}>
-          Manage users, assign roles, and monitor user activity
-        </Typography>
-      </Grid>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        height: paperHeight, // adjust to exclude header height (64px top bar + 32px margin)
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden', // prevent Paper-level scroll
+        borderRadius: 3,
+      }}
+    >
+      {/* Header + Controls */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          mb: 2
+        }}
+      >
+        <Box sx={{ minWidth: 200 }}>
+          <Typography variant="h3" sx={{ whiteSpace: 'nowrap' }}>
+            Users Management
+          </Typography>
+          <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
+            Manage users, assign roles, and monitor user activity
+          </Typography>
+        </Box>
 
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader
-            title={
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="h4">Users</Typography>
-                <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddUser}>
-                  Add User
-                </Button>
-              </Box>
-            }
+        <Box sx={{ display: 'flex', flex: 1, gap: 2, justifyContent: 'flex-end' }}>
+          <TextField
+            placeholder="Search users..."
+            value={searchText}
+            onChange={handleSearch}
+            sx={{
+              minWidth: 250,
+              '& .MuiInputBase-root': {
+                height: 40
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              )
+            }}
           />
-          <Divider />
-          <CardContent>
-            <Box mb={3}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Search users by name, email, or role..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleAddUser}
+            sx={{ height: 40, whiteSpace: 'nowrap' }}
+          >
+            Add User
+          </Button>
+          <Button variant="contained" color="error" disabled startIcon={<DeleteIcon />} sx={{ height: 40, whiteSpace: 'nowrap' }}>
+            Delete All
+          </Button>
+        </Box>
+      </Box>
 
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>User</TableCell>
-                    <TableCell>Role</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Join Date</TableCell>
-                    <TableCell align="center">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {currentUsers.map((user) => (
-                    <TableRow key={user.id} hover>
-                      <TableCell>
-                        <Box display="flex" alignItems="center">
-                          <Avatar src={user.avatar} alt={user.name} sx={{ mr: 2 }} />
-                          <Box>
-                            <Typography variant="subtitle1">{user.name}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {user.email}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>{user.role}</TableCell>
-                      <TableCell>
-                        <Chip label={user.status} color={user.status === 'Active' ? 'success' : 'default'} size="small" />
-                      </TableCell>
-                      <TableCell>{user.joinDate}</TableCell>
-                      <TableCell align="center">
-                        <IconButton color="info" size="small" title="View">
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton color="primary" size="small" title="Edit">
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton color="error" size="small" title="Delete">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <TablePagination
-              component="div"
-              count={filteredUsers.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              rowsPerPageOptions={[5, 10, 25]}
-            />
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+      {/* DataGrid fills remaining height */}
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <DataGridWrapper columns={columns} rows={rows} pageSize={5} checkboxSelection onRowClick={handleRowClick} sx={{ height: '100%' }} />
+      </Box>
+    </Paper>
   );
 };
 

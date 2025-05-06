@@ -5,6 +5,7 @@ import ChromeReaderModeOutlinedIcon from '@mui/icons-material/ChromeReaderModeOu
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import DonutSmallOutlinedIcon from '@mui/icons-material/DonutSmallOutlined';
+import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 
 const icons = {
   NavigationOutlinedIcon: NavigationOutlinedIcon,
@@ -12,7 +13,8 @@ const icons = {
   ChromeReaderModeOutlinedIcon: ChromeReaderModeOutlinedIcon,
   SecurityOutlinedIcon: SecurityOutlinedIcon,
   PeopleOutlinedIcon: PeopleOutlinedIcon,
-  DonutSmallOutlinedIcon: DonutSmallOutlinedIcon
+  DonutSmallOutlinedIcon: DonutSmallOutlinedIcon,
+  BusinessOutlinedIcon: BusinessOutlinedIcon
 };
 
 // ==============================|| MENU ITEMS ||============================== //
